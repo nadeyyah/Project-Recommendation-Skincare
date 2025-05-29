@@ -619,11 +619,11 @@ Melalui pengujian yang telah dilakukan, diperoleh nilai`avg_precision` sebesar 1
 Fungsi ini menghasilkan rekomendasi berbasis collaborative filtering dengan menggunakan matriks kemiripan antar-item.
 
 #### **Langkah-Langkah**:
+
 1. Membentuk **matriks item-user** dari data pelatihan (`train_df`).
 2. Memeriksa apakah `author_id` tersedia di matriks:
    - Jika tidak ditemukan, pengguna dilewati.
-3. Menghitung skor rekomendasi untuk setiap item menggunakan operasi matriks:
-   - \( \text{Skor Item} = \text{Kemiripan Antar-Item} \cdot \text{Rating Pengguna} \)
+3. Menghitung skor rekomendasi untuk setiap item menggunakan operasi matriks
 4. Menghapus item yang telah dirating oleh pengguna.
 5. Mengurutkan item berdasarkan skor dan mengambil \(top_n\) item teratas.
 

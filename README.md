@@ -95,6 +95,7 @@ Dataset ini diambil dari <a href="https://www.kaggle.com/datasets/nadyinky/sepho
     </tr>
   </thead>
   <tbody>
+    <tr><td>Unnamed:0 </td><td>urutan penulisan review </td><td>int64</td></tr>
     <tr><td>author_id</td><td>Identitas unik penulis ulasan</td><td>object</td></tr>
     <tr><td>rating</td><td>Rating yang diberikan penulis (1-5)</td><td>int64</td></tr>
     <tr><td>is_recommended</td><td>Apakah penulis merekomendasikan produk (1-ya, 0-tidak)</td><td>float64</td></tr>
@@ -272,6 +273,46 @@ Menggunakan TF-IDF Vectorizer untuk mengubah fitur teks menjadi representasi num
   <strong>TF-IDF(t, d) = TF(t, d) × IDF(t)</strong>
 </p>
 
+Dengan fungsi sebagai berikut:
+<code>
+vectorizer = TfidfVectorizer()
+</code>
+
+Parameter yang digunakan pada <code>TfidfVectorizer()</code> adalah parameter standar sebagai berikut:
+<table border="1" cellpadding="5" cellspacing="0">
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Default Value</th>
+      <th>Deskripsi Singkat</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td>input</td><td>'content'</td><td>Tipe input: konten teks langsung</td></tr>
+    <tr><td>encoding</td><td>'utf-8'</td><td>Encoding untuk membaca file</td></tr>
+    <tr><td>decode_error</td><td>'strict'</td><td>Cara menangani error decoding</td></tr>
+    <tr><td>strip_accents</td><td>None</td><td>Penghapusan aksen karakter</td></tr>
+    <tr><td>lowercase</td><td>True</td><td>Ubah teks menjadi huruf kecil</td></tr>
+    <tr><td>preprocessor</td><td>None</td><td>Fungsi preprocessing teks</td></tr>
+    <tr><td>tokenizer</td><td>None</td><td>Fungsi tokenisasi teks</td></tr>
+    <tr><td>analyzer</td><td>'word'</td><td>Unit analisis: kata</td></tr>
+    <tr><td>stop_words</td><td>None</td><td>Daftar kata yang diabaikan</td></tr>
+    <tr><td>token_pattern</td><td>'(?u)\b\w\w+\b'</td><td>Regex pola tokenisasi kata (minimal 2 karakter)</td></tr>
+    <tr><td>ngram_range</td><td>(1, 1)</td><td>Rentang n-gram yang diekstrak (hanya unigram)</td></tr>
+    <tr><td>max_df</td><td>1.0</td><td>Batas maksimum frekuensi dokumen untuk mengabaikan kata umum</td></tr>
+    <tr><td>min_df</td><td>1</td><td>Batas minimum frekuensi dokumen untuk memasukkan kata</td></tr>
+    <tr><td>max_features</td><td>None</td><td>Tidak membatasi jumlah fitur</td></tr>
+    <tr><td>vocabulary</td><td>None</td><td>Kamus kata khusus</td></tr>
+    <tr><td>binary</td><td>False</td><td>Hitung frekuensi kata, bukan hanya keberadaan</td></tr>
+    <tr><td>dtype</td><td>np.float64</td><td>Tipe data matriks hasil</td></tr>
+    <tr><td>norm</td><td>'l2'</td><td>Normalisasi vektor hasil dengan norma L2</td></tr>
+    <tr><td>use_idf</td><td>True</td><td>Gunakan bobot inverse document frequency (IDF)</td></tr>
+    <tr><td>smooth_idf</td><td>True</td><td>Smoothing untuk menghindari pembagian nol pada IDF</td></tr>
+    <tr><td>sublinear_tf</td><td>False</td><td>Tidak menggunakan skala logaritmik pada term frequency</td></tr>
+  </tbody>
+</table>
+
+
 <p>Dengan demikian, kata-kata yang sering muncul dalam sebuah dokumen tetapi jarang muncul di dokumen lain akan memiliki bobot TF-IDF yang tinggi, sehingga lebih representatif untuk dokumen tersebut.</p>
 Langkah ini menghasilkan matriks fitur gabungan yang siap digunakan dalam sistem rekomendasi berbasis konten.
 
@@ -388,6 +429,17 @@ Content-Based Filtering adalah metode rekomendasi yang menggunakan informasi fit
 
 ![Cosine Similarity](https://raw.githubusercontent.com/nadeyyah/Project-Recommendation-Skincare/main/recommendation_asset/asset_7.png)
 <p>Cosine similarity efektif digunakan pada collaborative filtering dan content-based filtering karena mampu mengukur kesamaan antar pengguna atau produk secara efisien dan akurat, terutama pada data berdimensi tinggi dan sparse, dengan hasil yang mudah diinterpretasikan.</p>
+<p>Fungsi <code>cosine_similarity</code> menggunakan parameter sebagai berikut:</p>
+<ul>
+  <li><strong>X</strong>: array-like atau sparse matrix, data input utama (wajib diisi).</li>
+  <li><strong>Y</strong>: array-like atau sparse matrix, default <code>None</code>. Jika <code>None</code>, fungsi menghitung kemiripan antar semua sampel di <code>X</code>.</li>
+  <li><strong>dense_output</strong>: boolean, default <code>True</code>. Menentukan apakah output berupa matriks dense meskipun input sparse.</li>
+</ul>
+
+<p>Pada contoh berikut:</p>
+<pre><code>cosine_sim_matrix = cosine_similarity(combined_features)</code></pre>
+
+<p>Hanya parameter <code>X</code> yang digunakan dengan nilai <code>combined_features</code>, sedangkan <code>Y</code> dan <code>dense_output</code> menggunakan nilai default (<code>Y=None</code>, <code>dense_output=True</code>). Sehingga, fungsi ini menghasilkan matriks kemiripan antar semua sampel di <code>combined_features</code>.</p>
 
 
 <h5>Langkah Pemodelan Content-Based Filtering</h5>

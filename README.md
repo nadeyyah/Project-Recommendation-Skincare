@@ -386,7 +386,9 @@ Content-Based Filtering adalah metode rekomendasi yang menggunakan informasi fit
 
 <h5>Rumus Cosine Similarity</h5>
 
-![Cosine Similarity](https://pplx-res.cloudinary.com/image/private/user_uploads/71119209/16062b23-fea4-4776-802c-fa909663875a/image.jpg)
+![Cosine Similarity](https://raw.githubusercontent.com/nadeyyah/Project-Recommendation-Skincare/main/recommendation_asset/asset_7.png)
+<p>Cosine similarity efektif digunakan pada collaborative filtering dan content-based filtering karena mampu mengukur kesamaan antar pengguna atau produk secara efisien dan akurat, terutama pada data berdimensi tinggi dan sparse, dengan hasil yang mudah diinterpretasikan.</p>
+
 
 <h5>Langkah Pemodelan Content-Based Filtering</h5>
 
@@ -420,7 +422,6 @@ def generate_recommendations(item_id, num_recommendations=5):
   <li><code>item_id</code>: ID produk yang menjadi acuan rekomendasi.</li>
   <li><code>num_recommendations</code>: Jumlah produk yang ingin direkomendasikan (default 5).</li>
 </ul>
----
 
 <h4>2. Collaborative Filtering</h4>
 <p>
@@ -441,6 +442,7 @@ Collaborative Filtering merekomendasikan produk berdasarkan interaksi pengguna l
 </ul>
 
 <h5>Langkah Pemodelan Collaborative Filtering</h5>
+
 <pre><code># Transpose matriks rating untuk mendapatkan vektor item
 item_matrix = rating_matrix.T
 
@@ -534,8 +536,320 @@ def recommend_products_with_cosine_and_similar_users(user_id, review_data, produ
   <li><code>m</code>: Jumlah rekomendasi berbasis user dari pengguna serupa (default 5).</li>
 </ul>
 
----
-
 # Evaluation
 
-# Kesimpulan
+Proses evaluasi untuk content-based filtering dan collaborative - filtering menggunakan metrik **Precision@K**. Metrik ini mengukur proporsi item relevan dalam 𝑘 rekomendasi teratas untuk suatu produk. Evaluasi melibatkan penilaian rekomendasi pada setiap produk dan perhitungan rata-rata precision di berbagai produk.
+
+## Rumus Precision@K
+
+Precision@K didefinisikan sebagai:
+
+$$
+Precision@K = \frac{|Item\ Relevan \cap Item\ Direkomendasikan|}{K}
+$$
+
+**Keterangan:**
+- *Item Relevan*: Item yang dianggap relevan (misalnya, berada dalam kategori yang sama).
+- *Item Direkomendasikan*: 𝑘 item teratas yang direkomendasikan oleh algoritma.
+- *K*: Jumlah rekomendasi yang dievaluasi.
+
+## Evaluasi: Content-Based Filtering
+
+## Fungsi dan Parameternya
+
+### **1. `evaluate_product_recommendation`**
+
+Fungsi ini mengevaluasi rekomendasi untuk satu produk menggunakan metrik **Precision@K**.
+
+**Parameter**:
+- `item_id`: ID produk yang akan dievaluasi.
+- `relevant_product_ids`: Daftar ID produk yang relevan (misalnya, produk dalam kategori yang sama).
+- `product_df`: DataFrame berisi informasi produk.
+- `cosine_sim_matrix`: Matriks kemiripan kosinus antara produk.
+- `top_n`: Jumlah rekomendasi yang dievaluasi (default = 5).
+
+**Proses**:
+1. **Menghasilkan Rekomendasi**:
+   - Menggunakan fungsi pembantu `generate_recommendations` untuk mendapatkan 𝑘 rekomendasi teratas untuk produk tertentu.
+2. **Mengambil ID Produk yang Direkomendasikan**:
+   - Mengambil ID produk dari hasil rekomendasi.
+3. **Menghitung Hits**:
+   - Menentukan item yang masuk dalam irisan antara produk yang direkomendasikan dan produk relevan.
+4. **Menghitung Precision@K**:
+   - Membagi jumlah hits dengan \(K\).
+
+**Output**:
+- `precision`: Nilai Precision@K untuk produk tersebut.
+- `hits`: Daftar produk relevan yang ditemukan dalam rekomendasi.
+- `recommended_products`: ID produk yang direkomendasikan.
+
+### **2. `evaluate_multiple_products`**
+
+Fungsi ini mengevaluasi rekomendasi untuk beberapa produk dan menghitung rata-rata **Precision@K**.
+
+**Parameter**:
+- `product_ids`: Daftar ID produk yang akan dievaluasi.
+- `product_df`: DataFrame berisi informasi produk.
+- `cosine_sim_matrix`: Matriks kemiripan kosinus antara produk.
+- `top_n`: Jumlah rekomendasi yang dievaluasi (default = 5).
+
+**Proses**:
+1. **Melakukan Iterasi pada Produk**:
+   - Untuk setiap ID produk:
+     - Tentukan produk relevan berdasarkan kategori utama.
+     - Kecualikan produk target dari daftar produk relevan.
+2. **Evaluasi Setiap Produk**:
+   - Gunakan `evaluate_product_recommendation` untuk menghitung Precision@K pada setiap produk.
+   - Simpan skor precision ke dalam daftar.
+3. **Menghitung Precision@K Rata-Rata**:
+   - Hitung rata-rata dari semua skor precision.
+
+**Output**:
+- `avg_precision`: Rata-rata Precision@K untuk semua produk yang dievaluasi.
+
+### Hasil Evaluasi Content-Based Filtering
+Melalui pengujian yang telah dilakukan, diperoleh nilai`avg_precision` sebesar 1, yang artinya model rekomendasi memberikan hasil yang sangat baik dengan semua item yang direkomendasikan benar-benar relevan bagi pengguna. Nilai ini menunjukkan tingkat akurasi maksimum dalam rekomendasi pada posisi teratas.
+
+## Evaluasi: Collaborative Filtering untuk Rekomendasi Berdasarkan Author
+
+## Deskripsi Fungsi dan Evaluasi
+
+### **Fungsi 1: `recommendation_by_author`**
+
+Fungsi ini menghasilkan rekomendasi berbasis collaborative filtering dengan menggunakan matriks kemiripan antar-item.
+
+#### **Langkah-Langkah**:
+1. Membentuk **matriks item-user** dari data pelatihan (`train_df`).
+2. Memeriksa apakah `author_id` tersedia di matriks:
+   - Jika tidak ditemukan, pengguna dilewati.
+3. Menghitung skor rekomendasi untuk setiap item menggunakan operasi matriks:
+   - \( \text{Skor Item} = \text{Kemiripan Antar-Item} \cdot \text{Rating Pengguna} \)
+4. Menghapus item yang telah dirating oleh pengguna.
+5. Mengurutkan item berdasarkan skor dan mengambil \(top_n\) item teratas.
+
+#### **Output**:
+- DataFrame yang berisi ID produk (`product_id`) dan skor rekomendasinya (`score`).
+
+### **Fungsi 2: `evaluate_author_recommendation`**
+
+Fungsi ini mengevaluasi performa rekomendasi dengan menghitung metrik **Precision@K** untuk satu pengguna.
+
+#### **Langkah-Langkah**:
+1. Mengambil daftar item yang relevan (dirating pengguna) dari data uji (`test_df`).
+2. Menggunakan fungsi `recommendation_by_author` untuk menghasilkan rekomendasi.
+3. Menghitung Precision@K:
+4. Mencetak daftar item relevan dan rekomendasi.
+
+#### **Output**:
+- Nilai Precision@K untuk pengguna.
+
+### **Fungsi 3: `evaluate_multiple_authors`**
+
+Fungsi ini mengevaluasi performa rekomendasi untuk beberapa pengguna sekaligus dan menghitung **Precision@K rata-rata**.
+
+#### **Langkah-Langkah**:
+1. Iterasi pada setiap pengguna (`author_id`):
+   - Menggunakan fungsi `evaluate_author_recommendation`.
+   - Menyimpan nilai Precision@K untuk pengguna valid.
+2. Menghitung rata-rata nilai Precision@K.
+
+#### **Output**:
+- Precision@K rata-rata untuk pengguna yang valid.
+
+Dari penggunaan fungsi `evaluate_multiple_authors`, berikut adalah hasil yang diperoleh:
+
+1. **Proses Evaluasi**:
+   - Setiap pengguna diperiksa apakah datanya ada di data pelatihan.
+   - Jika data tidak tersedia, pengguna dilewati dengan pesan:
+     ```
+     [SKIP] Author <author_id> is not in the training data.
+     [SKIP] No recommendations for Author <author_id>.
+     ```
+2. **Hasil Akhir**:
+   - Semua pengguna dalam contoh (`sample_author_ids`) tidak memiliki data di matriks pelatihan.
+   - Tidak ada rekomendasi yang dapat dievaluasi.
+
+3. **Precision@K Rata-Rata**:
+   - Karena tidak ada pengguna valid, Precision@K rata-rata adalah:
+     ```
+     No valid authors for evaluation.
+     Average Precision@5: 0.0000
+     ```
+# Kesimpulan 
+
+Melalui pengujian yang telah dilakukan <b>Content-Based filtering</b> , diperoleh nilai`avg_precision` sebesar 1, yang artinya model rekomendasi memberikan hasil yang sangat baik dengan semua item yang direkomendasikan benar-benar relevan bagi pengguna. Nilai ini menunjukkan tingkat akurasi maksimum dalam rekomendasi pada posisi teratas. Sedangkan untuk <b>Collaborative filtering</b> sebagai berikut:
+
+- **Kendala Utama**:
+  - Tidak adanya data pelatihan untuk pengguna tertentu menyebabkan sistem gagal memberikan rekomendasi.
+  - Sistem collaborative filtering sangat bergantung pada ketersediaan data interaksi historis.
+- **Makna Precision@K**:
+  - Nilai Precision@K = 0.0 menandakan bahwa rekomendasi tidak relevan atau tidak ada rekomendasi yang dapat dihasilkan.
+- **Rekomendasi Perbaikan**:
+  1. **Perluas Data Pelatihan**:
+     - Pastikan data interaksi mencakup lebih banyak pengguna dan item.
+  2. **Hybrid Approach**:
+     - Kombinasikan collaborative filtering dengan metode lain seperti content-based filtering untuk pengguna dengan data minim.
+  3. **Cold-Start Problem**:
+     - Terapkan pendekatan khusus untuk pengguna atau item baru, misalnya berbasis metadata.
+Hasil evaluasi menunjukkan pentingnya data pelatihan yang memadai untuk keberhasilan rekomendasi berbasis collaborative filtering.
+
+## Application Model 
+<h2>Content-Based Learning</h2>
+
+<pre><code>def print_recommendations(rec_dict):
+    print(f"Recommendations for: {rec_dict['product_name']}\n")
+    print(tabulate(rec_dict['recommendations'], headers='keys', tablefmt='psql', showindex=False))
+
+result = generate_recommendations('P473671')
+print_recommendations(result)
+</code></pre>
+
+<h3>Output:</h3>
+
+<p><strong>Recommendations for: Fragrance Discovery Set</strong></p>
+
+<table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse;">
+  <thead>
+    <tr>
+      <th>ranking</th>
+      <th>product_name</th>
+      <th>brand_name</th>
+      <th>primary_category</th>
+      <th>tertiary_category</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1</td>
+      <td>Wild Poppy Perfume Set</td>
+      <td>NEST New York</td>
+      <td>Fragrance</td>
+      <td>Perfume Gift Sets</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>Sunkissed Hibiscus Fine Fragrance Set</td>
+      <td>NEST New York</td>
+      <td>Fragrance</td>
+      <td>Perfume Gift Sets</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>Not a Perfume Sampler Set</td>
+      <td>Juliette Has a Gun</td>
+      <td>Fragrance</td>
+      <td>Perfume Gift Sets</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>Essential Wardrobe Eau de Parfum Set</td>
+      <td>Juliette Has a Gun</td>
+      <td>Fragrance</td>
+      <td>Perfume Gift Sets</td>
+    </tr>
+    <tr>
+      <td>5</td>
+      <td>Mini Fragrance Discovery Set</td>
+      <td>HERMÈS</td>
+      <td>Fragrance</td>
+      <td>Perfume Gift Sets</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr>
+
+<h2>Collaborative Learning</h2>
+
+<pre><code>recommend_products_with_cosine_and_similar_users('1845533064', reviews_df, product_df)
+</code></pre>
+
+<h3>Output:</h3>
+
+<p><strong>Top-5 Item-based Recommendations for User 1845533064:</strong></p>
+
+<table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse;">
+  <thead>
+    <tr>
+      <th>Rank</th>
+      <th>Product ID</th>
+      <th>Product Name</th>
+      <th>Category</th>
+      <th>Score</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1</td>
+      <td>P504637</td>
+      <td>Equilibrium Resurfacing Retinoid Treatment</td>
+      <td>Skincare</td>
+      <td>2.06313</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>P502200</td>
+      <td>HydraKate Recharging Serum with Hyaluronic Acid</td>
+      <td>Skincare</td>
+      <td>1.48869</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>P483700</td>
+      <td>Smoothing Vitamin C Eye + Expression Lines Cream</td>
+      <td>Skincare</td>
+      <td>1.48140</td>
+    </tr>
+    <tr>
+      <td>5</td>
+      <td>P481086</td>
+      <td>Liftwear Brightening Vitamin C Gel-Cream</td>
+      <td>Skincare</td>
+      <td>1.44120</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>Top-5 User-based Recommendations from Similar Users for User 1845533064:</strong></p>
+
+<table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse;">
+  <thead>
+    <tr>
+      <th>Rank</th>
+      <th>Product ID</th>
+      <th>Product Name</th>
+      <th>Category</th>
+      <th>Rating</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1</td>
+      <td>P473148</td>
+      <td>Mask-imum Revival Hydra-Plumping Mask</td>
+      <td>Skincare</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>P468850</td>
+      <td>Signature Moisturizer</td>
+      <td>Skincare</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>P474843</td>
+      <td>Absolue Soft Cream Revitalizing &amp; Brightening Moisturizer</td>
+      <td>Skincare</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>P471097</td>
+      <td>Facial Sculpting Wand</td>
+      <td>Skincare</td>
+      <td>5</td>
+    </tr>
+  </tbody>
+</table>

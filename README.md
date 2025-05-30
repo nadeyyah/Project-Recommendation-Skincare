@@ -475,6 +475,72 @@ def generate_recommendations(item_id, num_recommendations=5):
   <li><code>num_recommendations</code>: Jumlah produk yang ingin direkomendasikan (default 5).</li>
 </ul>
 
+Berikut hasil penggunaan fungsi <code>generate_recommendarion</code> untuk memberikan TOP-N rekomendasi Produk yang memiliki kemiripan dengan produk <code>P473671</code> sebanyak 5 item 
+
+<pre><code>def print_recommendations(rec_dict):
+    print(f"Recommendations for: {rec_dict['product_name']}\n")
+    print(tabulate(rec_dict['recommendations'], headers='keys', tablefmt='psql', showindex=False))
+
+result = generate_recommendations('P473671')
+print_recommendations(result)
+</code></pre>
+
+<h3>Output:</h3>
+
+<p><strong>Recommendations for: Fragrance Discovery Set</strong></p>
+
+<table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse;">
+  <thead>
+    <tr>
+      <th>ranking</th>
+      <th>product_name</th>
+      <th>brand_name</th>
+      <th>primary_category</th>
+      <th>tertiary_category</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1</td>
+      <td>Wild Poppy Perfume Set</td>
+      <td>NEST New York</td>
+      <td>Fragrance</td>
+      <td>Perfume Gift Sets</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>Sunkissed Hibiscus Fine Fragrance Set</td>
+      <td>NEST New York</td>
+      <td>Fragrance</td>
+      <td>Perfume Gift Sets</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>Not a Perfume Sampler Set</td>
+      <td>Juliette Has a Gun</td>
+      <td>Fragrance</td>
+      <td>Perfume Gift Sets</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>Essential Wardrobe Eau de Parfum Set</td>
+      <td>Juliette Has a Gun</td>
+      <td>Fragrance</td>
+      <td>Perfume Gift Sets</td>
+    </tr>
+    <tr>
+      <td>5</td>
+      <td>Mini Fragrance Discovery Set</td>
+      <td>HERMÈS</td>
+      <td>Fragrance</td>
+      <td>Perfume Gift Sets</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr>
+
+
 <h4>2. Collaborative Filtering</h4>
 <p>
 Collaborative Filtering merekomendasikan produk berdasarkan interaksi pengguna lain yang memiliki preferensi serupa. Model ini menggunakan data rating pengguna terhadap produk dan menghitung kesamaan baik antar produk (item-based) maupun antar pengguna (user-based) menggunakan <strong>cosine similarity</strong>.
@@ -587,6 +653,101 @@ def recommend_products_with_cosine_and_similar_users(user_id, review_data, produ
   <li><code>n</code>: Jumlah rekomendasi berbasis item yang ingin ditampilkan (default 5).</li>
   <li><code>m</code>: Jumlah rekomendasi berbasis user dari pengguna serupa (default 5).</li>
 </ul>
+
+Berikut hasil penggunaan fungsi <code>recommend_products_with_cosine_and_similar_users</code> untuk memberikan 5 produk yang sesuai berdasarkan riwayat pencariannya dan 5 produk pilihan dari user lain yang memiliki kesamaan dengan user <code>1845533064</code>
+<pre><code>recommend_products_with_cosine_and_similar_users('1845533064', reviews_df, product_df)
+</code></pre>
+
+<h3>Output:</h3>
+
+<p><strong>Top-5 Item-based Recommendations for User 1845533064:</strong></p>
+
+<table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse;">
+  <thead>
+    <tr>
+      <th>Rank</th>
+      <th>Product ID</th>
+      <th>Product Name</th>
+      <th>Category</th>
+      <th>Score</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1</td>
+      <td>P504637</td>
+      <td>Equilibrium Resurfacing Retinoid Treatment</td>
+      <td>Skincare</td>
+      <td>2.06313</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>P502200</td>
+      <td>HydraKate Recharging Serum with Hyaluronic Acid</td>
+      <td>Skincare</td>
+      <td>1.48869</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>P483700</td>
+      <td>Smoothing Vitamin C Eye + Expression Lines Cream</td>
+      <td>Skincare</td>
+      <td>1.48140</td>
+    </tr>
+    <tr>
+      <td>5</td>
+      <td>P481086</td>
+      <td>Liftwear Brightening Vitamin C Gel-Cream</td>
+      <td>Skincare</td>
+      <td>1.44120</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>Top-5 User-based Recommendations from Similar Users for User 1845533064:</strong></p>
+
+<table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse;">
+  <thead>
+    <tr>
+      <th>Rank</th>
+      <th>Product ID</th>
+      <th>Product Name</th>
+      <th>Category</th>
+      <th>Rating</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1</td>
+      <td>P473148</td>
+      <td>Mask-imum Revival Hydra-Plumping Mask</td>
+      <td>Skincare</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>P468850</td>
+      <td>Signature Moisturizer</td>
+      <td>Skincare</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>P474843</td>
+      <td>Absolue Soft Cream Revitalizing &amp; Brightening Moisturizer</td>
+      <td>Skincare</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>P471097</td>
+      <td>Facial Sculpting Wand</td>
+      <td>Skincare</td>
+      <td>5</td>
+    </tr>
+  </tbody>
+</table>
+
 
 # Evaluation
 
@@ -744,164 +905,3 @@ Melalui pengujian yang telah dilakukan <b>Content-Based filtering</b> , diperole
   3. **Cold-Start Problem**:
      - Terapkan pendekatan khusus untuk pengguna atau item baru, misalnya berbasis metadata.
 Hasil evaluasi menunjukkan pentingnya data pelatihan yang memadai untuk keberhasilan rekomendasi berbasis collaborative filtering.
-
-## Application Model 
-<h2>Content-Based Learning</h2>
-
-<pre><code>def print_recommendations(rec_dict):
-    print(f"Recommendations for: {rec_dict['product_name']}\n")
-    print(tabulate(rec_dict['recommendations'], headers='keys', tablefmt='psql', showindex=False))
-
-result = generate_recommendations('P473671')
-print_recommendations(result)
-</code></pre>
-
-<h3>Output:</h3>
-
-<p><strong>Recommendations for: Fragrance Discovery Set</strong></p>
-
-<table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse;">
-  <thead>
-    <tr>
-      <th>ranking</th>
-      <th>product_name</th>
-      <th>brand_name</th>
-      <th>primary_category</th>
-      <th>tertiary_category</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>1</td>
-      <td>Wild Poppy Perfume Set</td>
-      <td>NEST New York</td>
-      <td>Fragrance</td>
-      <td>Perfume Gift Sets</td>
-    </tr>
-    <tr>
-      <td>2</td>
-      <td>Sunkissed Hibiscus Fine Fragrance Set</td>
-      <td>NEST New York</td>
-      <td>Fragrance</td>
-      <td>Perfume Gift Sets</td>
-    </tr>
-    <tr>
-      <td>3</td>
-      <td>Not a Perfume Sampler Set</td>
-      <td>Juliette Has a Gun</td>
-      <td>Fragrance</td>
-      <td>Perfume Gift Sets</td>
-    </tr>
-    <tr>
-      <td>4</td>
-      <td>Essential Wardrobe Eau de Parfum Set</td>
-      <td>Juliette Has a Gun</td>
-      <td>Fragrance</td>
-      <td>Perfume Gift Sets</td>
-    </tr>
-    <tr>
-      <td>5</td>
-      <td>Mini Fragrance Discovery Set</td>
-      <td>HERMÈS</td>
-      <td>Fragrance</td>
-      <td>Perfume Gift Sets</td>
-    </tr>
-  </tbody>
-</table>
-
-<hr>
-
-<h2>Collaborative Learning</h2>
-
-<pre><code>recommend_products_with_cosine_and_similar_users('1845533064', reviews_df, product_df)
-</code></pre>
-
-<h3>Output:</h3>
-
-<p><strong>Top-5 Item-based Recommendations for User 1845533064:</strong></p>
-
-<table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse;">
-  <thead>
-    <tr>
-      <th>Rank</th>
-      <th>Product ID</th>
-      <th>Product Name</th>
-      <th>Category</th>
-      <th>Score</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>1</td>
-      <td>P504637</td>
-      <td>Equilibrium Resurfacing Retinoid Treatment</td>
-      <td>Skincare</td>
-      <td>2.06313</td>
-    </tr>
-    <tr>
-      <td>3</td>
-      <td>P502200</td>
-      <td>HydraKate Recharging Serum with Hyaluronic Acid</td>
-      <td>Skincare</td>
-      <td>1.48869</td>
-    </tr>
-    <tr>
-      <td>4</td>
-      <td>P483700</td>
-      <td>Smoothing Vitamin C Eye + Expression Lines Cream</td>
-      <td>Skincare</td>
-      <td>1.48140</td>
-    </tr>
-    <tr>
-      <td>5</td>
-      <td>P481086</td>
-      <td>Liftwear Brightening Vitamin C Gel-Cream</td>
-      <td>Skincare</td>
-      <td>1.44120</td>
-    </tr>
-  </tbody>
-</table>
-
-<p><strong>Top-5 User-based Recommendations from Similar Users for User 1845533064:</strong></p>
-
-<table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse;">
-  <thead>
-    <tr>
-      <th>Rank</th>
-      <th>Product ID</th>
-      <th>Product Name</th>
-      <th>Category</th>
-      <th>Rating</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>1</td>
-      <td>P473148</td>
-      <td>Mask-imum Revival Hydra-Plumping Mask</td>
-      <td>Skincare</td>
-      <td>5</td>
-    </tr>
-    <tr>
-      <td>2</td>
-      <td>P468850</td>
-      <td>Signature Moisturizer</td>
-      <td>Skincare</td>
-      <td>5</td>
-    </tr>
-    <tr>
-      <td>3</td>
-      <td>P474843</td>
-      <td>Absolue Soft Cream Revitalizing &amp; Brightening Moisturizer</td>
-      <td>Skincare</td>
-      <td>5</td>
-    </tr>
-    <tr>
-      <td>4</td>
-      <td>P471097</td>
-      <td>Facial Sculpting Wand</td>
-      <td>Skincare</td>
-      <td>5</td>
-    </tr>
-  </tbody>
-</table>

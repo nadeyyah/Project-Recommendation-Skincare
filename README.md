@@ -450,8 +450,10 @@ cosine_sim_matrix = cosine_similarity(combined_features)
 
 ## Menyimpan matriks similarity dalam DataFrame dengan index product_id
 similarity_df = pd.DataFrame(cosine_sim_matrix, index=product_df['product_id'], columns=product_df['product_id'])
+</code></pre>
 
-## Fungsi untuk menghasilkan rekomendasi berdasarkan product_id
+<P> Mendapatkan TOP-N Rekomendasi dengan Content-Based Filteting</p>
+<pre><code>## Fungsi untuk menghasilkan rekomendasi berdasarkan product_id
 def generate_recommendations(item_id, num_recommendations=5):
     idx = product_df.index[product_df['product_id'] == item_id].tolist()[0]
     similarity_scores = cosine_sim_matrix[idx]
@@ -460,15 +462,14 @@ def generate_recommendations(item_id, num_recommendations=5):
     recommended_items = product_df.loc[filtered_indices, ['product_name', 'brand_name', 'primary_category', 'tertiary_category']].copy()
     recommended_items.insert(0, 'ranking', range(1, num_recommendations + 1))
     product_name = product_df.loc[product_df['product_id'] == item_id, 'product_name'].values[0]
-
     print(f"Recommendations for: {product_name}\n")
     print(tabulate(recommended_items, headers='keys', tablefmt='psql', showindex=False))
-
     return {
         'product_name': product_name,
         'recommendations': recommended_items
     }
-</code></pre>
+    </code></pre>
+    
 <p><strong>Parameter fungsi <code>generate_recommendations</code>:</strong></p>
 <ul>
   <li><code>item_id</code>: ID produk yang menjadi acuan rekomendasi.</li>
@@ -565,31 +566,27 @@ Collaborative Filtering merekomendasikan produk berdasarkan interaksi pengguna l
 item_matrix = rating_matrix.T
 
 # Hitung cosine similarity antar item
-item_similarity = cosine_similarity(item_matrix)
+item_similarity = cosine_similarity(item_matrix)</code></pre>
 
+<p>Mendapatkan Top N Rekomendasi Menggunakan Collaborative-Filtering</p>
+<pre><code>
 # Fungsi rekomendasi gabungan item-based dan user-based
 def recommend_products_with_cosine_and_similar_users(user_id, review_data, product_data, n=5, m=5):
     if user_id not in review_data['author_id'].values:
         print(f"User {user_id} not found in the review data.")
         return
-
     # Buat matriks user-product rating
     user_product_matrix = review_data.pivot_table(index='author_id', columns='product_id', values='rating').fillna(0)
-
     # Hitung matriks similarity item dan user
     item_similarity_matrix = cosine_similarity(user_product_matrix.T)
     item_similarity_df = pd.DataFrame(item_similarity_matrix, index=user_product_matrix.columns, columns=user_product_matrix.columns)
-
     user_similarity_matrix = cosine_similarity(user_product_matrix)
     user_similarity_df = pd.DataFrame(user_similarity_matrix, index=user_product_matrix.index, columns=user_product_matrix.index)
-
     # Produk yang sudah dirating user
     user_ratings = review_data[review_data['author_id'] == user_id]
     rated_products = user_ratings['product_id'].tolist()
-
     all_products = user_product_matrix.columns.tolist()
     unrated_products = [p for p in all_products if p not in rated_products]
-
     # Hitung skor rekomendasi berbasis item
     scores = {}
     for rated_product in rated_products:
@@ -601,9 +598,7 @@ def recommend_products_with_cosine_and_similar_users(user_id, review_data, produ
                 continue
             similarity_score = item_similarity_df.loc[rated_product, unrated_product]
             scores[unrated_product] = scores.get(unrated_product, 0) + similarity_score * rated_product_rating
-
     recommended_products = sorted(scores.items(), key=lambda x: x[1], reverse=True)[:n]
-
     # Hitung rekomendasi berbasis user dari user serupa
     if user_id not in user_similarity_df.index:
         print(f"User {user_id} not found in the user similarity matrix.")
@@ -619,7 +614,6 @@ def recommend_products_with_cosine_and_similar_users(user_id, review_data, produ
                 if product not in rated_products and rating >= 4:
                     similar_user_scores[product] = max(similar_user_scores.get(product, 0), rating)
         similar_user_recommendations = sorted(similar_user_scores.items(), key=lambda x: x[1], reverse=True)[:m]
-
     # Tampilkan rekomendasi item-based
     print(f"\nTop-{n} Item-based Recommendations for User {user_id}:\n")
     recommendations = []
@@ -631,7 +625,6 @@ def recommend_products_with_cosine_and_similar_users(user_id, review_data, produ
         category = product_info.iloc[0]['primary_category']
         recommendations.append([rank, product_id, product_name, category, score])
     print(tabulate(recommendations, headers=["Rank", "Product ID", "Product Name", "Category", "Score"], tablefmt="psql"))
-
     # Tampilkan rekomendasi user-based
     print(f"\nTop-{m} User-based Recommendations from Similar Users for User {user_id}:\n")
     user_based_recs = []
